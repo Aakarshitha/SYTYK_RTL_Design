@@ -1,27 +1,31 @@
-module smoke_test;
-    logic clk=0, rst_n=0, en=0;
-    logic pwm_out;
+`timescale 1ns/1ps
 
-    // Change module name here to test different versions
+module tb_pipelined_pwm;
+    logic        clk = 0;
+    logic        rst_n = 0;
+    logic        en = 0;
+    logic [63:0] target = 64'd100; // Testing with N=100
+    logic        pwm_out;
+
+    // 1GHz Clock (1ns period)
+    always #0.5 clk = ~clk;
+
     pipelined_pwm_64bit uut (.*);
 
-    always #5 clk = ~clk;
-
     initial begin
-        $display("Starting Test...");
-        #20 rst_n = 1;
-        #20 en = 1; 
+        $dumpfile("pipeline.vcd");
+        $dumpvars(0, tb_pipelined_pwm);
         
-        // Check first 3 pulses
-        repeat(3) begin
-            @(posedge pwm_out);
-            $display("T=%0t | PWM HIGH detected", $time);
-            @(negedge pwm_out);
-            $display("T=%0t | PWM LOW detected", $time);
-        end
-        
-        #100 en = 0;
-        $display("T=%0t | Enable dropped. PWM should stay LOW.", $time);
-        #100 $finish;
+        $display("--- Pipelined PWM Smoke Test (1GHz) ---");
+        #10 rst_n = 1;
+        #10 en = 1;
+
+        // Measure pulse width
+        @(posedge pwm_out);
+        $display("T=%0t | Pulse Started", $time);
+        @(negedge pwm_out);
+        $display("T=%0t | Pulse Ended. Width should be 100ns.", $time);
+
+        #500 $finish;
     end
 endmodule
