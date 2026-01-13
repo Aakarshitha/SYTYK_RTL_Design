@@ -1,3 +1,4 @@
+// Code your design here
 module pipelined_pwm_64bit (
     input  logic        clk,
     input  logic        rst_n,
@@ -11,7 +12,7 @@ module pipelined_pwm_64bit (
     
     // Pre-calculate adjusted target to compensate for 4-stage pipeline lag
     logic [63:0] adj_target;
-    assign adj_target = target - 64'd4;
+    assign adj_target = target - 64'd2;// -2 so that it accounts for the 4 stage lag due to pipeline where  the other two comes from the two registers pipematchq and finalmatchq calculated . so +4 -2 -2 = 0 lag!
 
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
@@ -34,6 +35,7 @@ module pipelined_pwm_64bit (
         pipe_match_q[0] <= (count_q[15:0]  == adj_target[15:0]);
         pipe_match_q[1] <= (count_q[31:16] == adj_target[31:16]);
         pipe_match_q[2] <= (count_q[47:32] == adj_target[47:32]);
+      // pipe_match_q[3] <= (count_q[63:48] == adj_target[63:48]);//was this earlier
         pipe_match_q[3] <= (count_q[63:48] == adj_target[63:48]);
         final_match_q   <= &pipe_match_q;
     end
