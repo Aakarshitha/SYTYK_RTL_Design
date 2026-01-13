@@ -1,0 +1,19 @@
+/*
+ * -----------------------------------------------------------------------------
+ * THE CHALLENGE: Fibonacci Breathing & The "Adder Hijack"
+ * -----------------------------------------------------------------------------
+ * Goal: 
+ * Implement a Fibonacci-based breathing sequence (1, 1, 2, 3, 5, 8...) 
+ * with an EXTREME area constraint.
+ *
+ * Constraints:
+ * 1. Single Adder: You are only allowed ONE adder in the entire RTL. 
+ * 2. Resource Sharing: This single adder must perform:
+ * - Counter incrementing (count_q + 1) during the pulse.
+ * - Fibonacci calculation (Fib_n = Fib_n-1 + Fib_n-2) during transitions.
+ *
+ * Technical Skill: 
+ * This tests your ability to multiplex datapath inputs to reuse expensive 
+ * arithmetic blocks (Resource Sharing).
+ * -----------------------------------------------------------------------------
+ */
