@@ -1,40 +1,27 @@
-module pipelined_pwm_64bit (
-    input  logic        clk,
-    input  logic        rst_n,
-    input  logic        en,
-    input  logic [63:0] target,
-    output logic        pwm_out
+module optimized_shadow_pwm (
+    input  logic       clk,
+    input  logic       rst_n,
+    input  logic       en,
+    input  logic [7:0] cpu_data_in,
+    input  logic       cpu_update,
+    output logic       pwm_out
 );
-    logic [63:0] count_q;
-    logic [3:0]  pipe_match_q;
-    logic        final_match_q;
-    
-    // Pre-calculate adjusted target to compensate for 4-stage pipeline lag
-    logic [63:0] adj_target;
-    assign adj_target = target - 64'd4;
+    logic [7:0] n_shadow_q, n_active_q, count_q;
+
+    always_ff @(posedge clk) if (cpu_update) n_shadow_q <= cpu_data_in;
 
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             count_q <= 0;
-            pwm_out <= 0;
+            n_active_q <= 8'd10;
         end else if (en) begin
-            // Pulse is HIGH from 0 until the match is detected
-            if (final_match_q) begin
-                count_q <= 0;
-                pwm_out <= 0;
+            if (count_q == 0) begin
+                count_q    <= n_active_q;
+                n_active_q <= n_shadow_q; // Safe update at boundary
             end else begin
-                count_q <= count_q + 1;
-                if (count_q == 0) pwm_out <= 1; 
+                count_q <= count_q - 1;
             end
         end
     end
-
-    // Pipelined Equality Check
-    always_ff @(posedge clk) begin
-        pipe_match_q[0] <= (count_q[15:0]  == adj_target[15:0]);
-        pipe_match_q[1] <= (count_q[31:16] == adj_target[31:16]);
-        pipe_match_q[2] <= (count_q[47:32] == adj_target[47:32]);
-        pipe_match_q[3] <= (count_q[63:48] == adj_target[63:48]);
-        final_match_q   <= &pipe_match_q;
-    end
+    assign pwm_out = en && (count_q != 0); 
 endmodule
