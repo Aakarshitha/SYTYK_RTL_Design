@@ -1,3 +1,5 @@
+// Code your testbench here
+// or browse Examples
 `timescale 1ns/1ps
 
 module tb_optimized_shadow_pwm;
@@ -21,19 +23,23 @@ module tb_optimized_shadow_pwm;
         #20 en = 1;
 
         // Wait until counter is mid-way (e.g., at 10)
-        #60; 
-        
+        #30; 
+        cpu_update  = 1;
+        $display("T=%0t |  Active N is now: %0d", $time, uut.n_active_q);
+        #30;
         // Update N to 5 mid-cycle
         cpu_data_in = 8'd5;
         cpu_update  = 1;
-        #10 cpu_update = 0;
+        //#10 cpu_update = 0;
         $display("T=%0t | CPU requested N=5 mid-cycle. Active N should remain 20.", $time);
+      
 
         // Monitor Active Register transition
         // In GTKWave, watch 'uut.n_active_q'
         repeat(2) begin
             @(negedge pwm_out);
             $display("T=%0t | Frame finished. Active N is now: %0d", $time, uut.n_active_q);
+          $display("T=%0t | Frame finished. shadow N is now: %0d", $time, uut.n_shadow_q);
         end
 
         #200 $finish;
