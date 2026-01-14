@@ -1,0 +1,48 @@
+/*
+ * Module: blinking_pwm
+ * -----------------------------------------------------------------------------
+ * THE INTERVIEW CHALLENGE: The Dynamic "Breathing" LED Controller
+ * -----------------------------------------------------------------------------
+ * Scenario:
+ * You are designing a status LED controller for a low-power IoT chip. 
+ * To make the device feel "alive," the LED should "breathe" by gradually 
+ * increasing its intensity via Pulse Width Modulation (PWM).
+ *
+ * Technical Specifications:
+ * 1. Waveform: Output HIGH for 'N' cycles, then LOW for '2N' cycles.
+ * 2. Progression: Start with N=1. After each full period (High + Low), 
+ * increment N by 1 (i.e., N = 1, 2, 3... up to 16).
+ * 3. Reset: When N reaches 16, the sequence loops back to N=1.
+ *
+ * Hardware Constraints (Senior Architect Review):
+ * - Resource Sharing: Use ONLY ONE counter for both durations.
+ * - Glitch Prevention: The pwm_out must be registered (no combinational paths).
+ * - Style: Implement using the 3-Process FSM (Sequential, Next-State, Datapath).
+ *
+ * 🌟 EXTRA CREDIT: "The Adder Hijack"
+ * Modify the progression to follow the Fibonacci sequence (1, 1, 2, 3, 5...).
+ * Constraint: You are only allowed ONE single Adder in the entire design
+ * to handle both the time-counting and the Fibonacci math.
+ * -----------------------------------------------------------------------------
+ */
+
+// module blinking_pwm (
+//    input  logic        clk,      // System Clock
+//    input  logic        rst_n,    // Asynchronous Reset (Active Low)
+//    input  logic        en,       // Enable signal to start breathing
+//    output logic        pwm_out   // Registered PWM output
+// );
+
+    // --- State Encoding ---
+    // (e.g., IDLE, ST_HIGH, ST_LOW)
+
+    // --- Signals & Registers ---
+    // (Hint: Use 0 to N-1 counting convention)
+
+    // --- Process 1: Sequential Update ---
+    
+    // --- Process 2: Next State Logic ---
+    
+    // --- Process 3: Datapath & Counter Logic ---
+
+// endmodule
