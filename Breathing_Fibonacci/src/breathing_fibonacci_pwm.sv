@@ -1,57 +1,63 @@
-`timescale 1ns/1ps
+module fibonacci_shared_adder (
+    input  logic       clk,
+    input  logic       rst_n,
+    input  logic       en,
+    output logic       pwm_out
+);
+    logic [7:0] count_q, fib_curr_q, fib_prev_q;
+    logic       state_q; 
+    logic [7:0] op_a, op_b, sum;
 
-module tb_fib_breathing;
+    assign sum = op_a + op_b;
 
-    // --- Signals ---
-    logic clk = 0;
-    logic rst_n = 0;
-    logic en = 0;
-    logic pwm_out;
-
-    // --- UUT Instantiation ---
-    fibonacci_shared_adder uut (
-        .clk    (clk),
-        .rst_n  (rst_n),
-        .en     (en),
-        .pwm_out(pwm_out)
-    );
-
-    // --- Clock Generation (100MHz) ---
-    always #5 clk = ~clk;
-
-    // --- Logic to Measure Pulse Widths ---
-    realtime rising_edge_time;
-    realtime pulse_width;
-
-    // --- Stimulus & VCD Dumping ---
-    initial begin
-        $dumpfile("fib_test.vcd");
-        $dumpvars(0, tb_fib_breathing);
-        
-        $display("--------------------------------------------------");
-        $display("STARTING FIBONACCI SMOKE TEST");
-        $display("Goal: Verify pulse widths follow 1, 1, 2, 3, 5...");
-        $display("--------------------------------------------------");
-
-        // Reset and Enable
-        #20 rst_n = 1;
-        #20 en = 1;
-
-      // Monitor first 7 Fibonacci pulses
-      repeat (9) begin
-            @(posedge pwm_out);
-            rising_edge_time = $realtime;
-            
-            @(negedge pwm_out);
-            pulse_width = ($realtime - rising_edge_time) / 10; // Divide by clock period (10ns)
-            
-            $display("T=%0t | Detected HIGH Pulse Width: %0d cycles", $time, pulse_width);
+    // --- SHARED ADDER MUX ---
+    always_comb begin
+        if (count_q == 8'd1) begin
+            op_a = fib_curr_q;
+            // If prev is our special start flag (FF), add 0 to stay at 1.
+            op_b = (fib_prev_q == 8'hFF) ? 8'd0 : fib_prev_q;
+        end else begin
+            op_a = count_q;
+            op_b = 8'hFF; // -1
         end
-
-        $display("--------------------------------------------------");
-        $display("TEST COMPLETE: Check if sequence matches Fibonacci.");
-        $display("--------------------------------------------------");
-        $finish;
     end
 
+    // --- SEQUENTIAL LOGIC ---
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            count_q    <= 8'd1;
+            fib_curr_q <= 8'd1;
+            fib_prev_q <= 8'hFF; // Special "First 1" flag
+            state_q    <= 1'b1;  // Start in LOW
+            pwm_out    <= 1'b0;
+        end else if (en) begin
+            if (count_q <= 8'd1) begin
+                state_q <= ~state_q;
+                
+                // Set pwm_out based on the state we are ENTERING
+                // If entering state 0, pwm_out goes HIGH
+                pwm_out <= (state_q == 1'b1); 
+
+                if (state_q == 1'b1) begin // Entering HIGH Phase
+                    if (fib_prev_q == 8'hFF) begin
+                        // Transition from First 1 to Second 1
+                        fib_curr_q <= 8'd1;
+                        fib_prev_q <= 8'd0; // Now 1+0 will happen next
+                        count_q    <= 8'd1; 
+                    end else begin
+                        // Standard Fibonacci Update
+                        fib_curr_q <= (sum > 255) ? 8'd1 : sum;
+                        fib_prev_q <= fib_curr_q;
+                        count_q    <= (sum > 255) ? 8'd1 : sum;
+                    end
+                end else begin // Entering LOW Phase
+                    count_q <= fib_curr_q;
+                end
+            end else begin
+                count_q <= sum;
+            end
+        end else begin
+            pwm_out <= 1'b0;
+        end
+    end
 endmodule
