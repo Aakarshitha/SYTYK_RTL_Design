@@ -1,30 +1,29 @@
 /*
- * Module: phased_tdm_pwm
+ * Module: phased_tdm_pwm_64bit
  * -----------------------------------------------------------------------------
- * THE INTERVIEW CHALLENGE: The "Green Power" High-Current Controller
+ * THE INTERVIEW CHALLENGE: Peak Current Mitigation in 64-bit PWM
  * -----------------------------------------------------------------------------
  * Scenario:
- * Your 16-LED array is drawing too much instantaneous current. When all 16 
- * channels switch HIGH at the start of a cycle (N=0), the power rail sags, 
- * causing "Ground Bounce" and electromagnetic interference (EMI).
+ * Your 16-channel 64-bit PWM is causing massive voltage droops on the power 
+ * rail. This occurs because all 16 channels switch HIGH simultaneously 
+ * when their respective counters reset to zero.
  *
  * Technical Specifications:
- * 1. Peak Current Reduction: Stagger the "Turn-ON" time of each LED so they 
- * never switch simultaneously.
- * 2. Phase Distribution: If the PWM period is T, LED(i) should ideally 
- * trigger at offset (T/16)*i.
- * 3. Integrity: The total HIGH time (duty cycle) must remain mathematically 
- * perfect according to the Fibonacci sequence, regardless of the start delay.
+ * 1. Current Spreading: Implement Phase Division Multiplexing to stagger 
+ * the start times of all 16 channels.
+ * 2. Math Integrity: Even with a phase offset, each channel must maintain 
+ * exactly the HIGH time specified by its 64-bit target.
+ * 3. 1GHz Timing: The phase-comparison logic must also be pipelined to 
+ * maintain the 1GHz target frequency.
  *
  * Hardware Constraints (Senior Architect Review):
- * - Phase-Division Multiplexing (PDM): Add a "Phase Offset" field to the 
- * Context RAM for each LED.
- * - Logic Depth: The "Start Trigger" must now compare the counter against 
- * a unique offset rather than a global zero.
+ * - Phase Offsets: Store a 64-bit "Start-Time Offset" in the Context RAM 
+ * for each channel.
+ * - EMI Reduction: Demonstrate how phase-shifting reduces the fundamental 
+ * frequency energy of the switching noise.
  *
- * 🌟 EXTRA CREDIT: "The Spectrum Spreader"
- * Dynamically randomize the phase offsets on every reset. This spreads the 
- * switching noise across a wider frequency spectrum (Spread Spectrum PWM), 
- * making it much easier for the device to pass FCC/EMI certification.
+ * 🌟 EXTRA CREDIT: "The Interleaved Reset"
+ * Design the system so that the counter resets are also staggered, ensuring 
+ * that no two 64-bit counters increment or clear on the same clock cycle.
  * -----------------------------------------------------------------------------
  */
