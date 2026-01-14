@@ -1,0 +1,23 @@
+/*
+ * -----------------------------------------------------------------------------
+ * CASE STUDY: Area Optimization & Glitch Robustness
+ * -----------------------------------------------------------------------------
+ * Scenario:
+ * The die area is over budget. We need to reduce gate count while fixing 
+ * functional "mid-pulse glitches" reported by the verification team.
+ *
+ * Design Challenge:
+ * 1. Down-Counter Migration: Replace the Up-Counter/Comparator with a 
+ * Down-Counter to Zero. 
+ * Why? A "Zero-Detector" (NOR-reduction) is physically smaller and faster 
+ * than a Magnitude Comparator.
+ *
+ * 2. The Shadow Register: Implement a "Shadow" or "Pre-load" register for N.
+ * Ensure that if a CPU updates the brightness, the change only takes 
+ * effect at the start of the next PWM frame to prevent pulse truncation.
+ *
+ * 3. TDM Architecture (Conceptual):
+ * If we need to drive 16 LEDs, how can we use ONE 64-bit ALU and a 
+ * distributed RAM instead of 16 separate counters?
+ * -----------------------------------------------------------------------------
+ */
