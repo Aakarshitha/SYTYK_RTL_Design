@@ -1,28 +1,26 @@
 /*
- * Module: rgb_tdm_fibonacci_pwm
+ * Module: rgb_pipelined_pwm
  * -----------------------------------------------------------------------------
- * THE INTERVIEW CHALLENGE: The "True Color" Spectrum Controller
+ * THE INTERVIEW CHALLENGE: The High-Speed Color Synthesis Engine
  * -----------------------------------------------------------------------------
  * Scenario:
- * A single-color LED is no longer enough. You are designing a premium lighting 
- * controller for 16 RGB LEDs. You must now synthesize specific colors by 
- * independently controlling the Red, Green, and Blue duty cycles for every pixel.
+ * You are building a display driver for a 1GHz high-definition lighting array. 
+ * Each pixel is an RGB LED, requiring three synchronized 64-bit PWM channels.
  *
  * Technical Specifications:
- * 1. Vector Processing: Manage 48 total 1-bit outputs (16 LEDs x 3 colors).
- * 2. Color Mapping: The Context RAM must now store a "Color Vector" per LED.
- * 3. Synchronization: The R, G, and B components of a single LED must stay 
- * synchronized in their breathing phase to prevent "color shifting."
+ * 1. Vector Comparison: Each LED index requires three 64-bit comparisons 
+ * (Red, Green, Blue) per cycle.
+ * 2. Throughput: The system must run at a 1GHz clock frequency.
+ * 3. Resolution: Full 64-bit duty cycle control for millions of color shades.
  *
  * Hardware Constraints (Senior Architect Review):
- * - Memory Bandwidth: Optimize the Context RAM bit-width to handle the 
- * tripled data requirement (3x Fibonacci states per LED index).
- * - Datapath Efficiency: Reuse the "Shared Adder" to process R, G, and B 
- * components sequentially or via a wider parallel datapath.
+ * - Pipelined Datapath: Because 64-bit comparison cannot be completed in 
+ * 1ns, you must implement a multi-stage pipeline for the RGB comparison.
+ * - Synchronization: Ensure the Red, Green, and Blue "Turn-ON" events are 
+ * perfectly aligned to prevent color-fringe artifacts.
  *
- * 🌟 EXTRA CREDIT: "The Gamut Master"
- * Implement a "Global Brightness" multiplier. Even while the LEDs are 
- * breathing through the Fibonacci sequence, allow a top-level signal to 
- * dim the entire 48-output array simultaneously without corrupting the math.
+ * 🌟 EXTRA CREDIT: "The Gamma Correction Pipeline"
+ * Insert a lookup table (LUT) stage into the pipeline to map 8-bit color 
+ * inputs to 64-bit PWM targets before the comparison occurs.
  * -----------------------------------------------------------------------------
  */
