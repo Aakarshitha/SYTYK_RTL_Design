@@ -1,30 +1,27 @@
 /*
- * Module: tdm_fibonacci_pwm
+ * Module: tdm_pwm_64bit
  * -----------------------------------------------------------------------------
- * THE INTERVIEW CHALLENGE: The Massively Scalable "Alive" LED Array
+ * THE INTERVIEW CHALLENGE: The Area-Constrained 16-Channel Controller
  * -----------------------------------------------------------------------------
  * Scenario:
- * Your IoT chip has been upgraded to a smart-hub that drives 16 independent 
- * status LEDs. Each LED must maintain its own unique Fibonacci "breathing" 
- * sequence, making the entire panel look like a living organism.
+ * You are designing a high-precision motor controller for a 16-axis robotic arm. 
+ * Each axis requires a dedicated 64-bit PWM signal for ultra-fine resolution.
  *
  * Technical Specifications:
- * 1. Multi-Channel: Drive 16 independent LED outputs (pwm_bus[15:0]).
- * 2. Independence: Each LED tracks its own N-value and Fibonacci progression.
- * 3. Scaling: The architecture must be "O(1) Logic"—increasing the number 
- * of LEDs should not increase the number of adders or comparators.
+ * 1. Resolution: 64-bit counter per channel.
+ * 2. Scaling: Drive 16 independent PWM outputs (pwm_bus[15:0]).
+ * 3. Area Constraint: The silicon budget does not allow for sixteen 64-bit 
+ * comparators. You must use a single "Shared Engine."
  *
  * Hardware Constraints (Senior Architect Review):
- * - Resource Sharing: You are forbidden from instantiating 16 separate modules. 
- * Use Time Division Multiplexing (TDM) with a single "Shared Engine."
- * - Context Switching: Implement a "Context RAM" to store {state, count, fib_curr, 
- * fib_prev} for each LED index.
- * - Throughput: The system must cycle through all 16 LEDs in a round-robin 
- * scheduler at 1GHz, updating one LED "context" per clock cycle.
+ * - Time Division Multiplexing (TDM): Use a single high-speed 64-bit adder/comparator.
+ * - Context Management: Implement a Context RAM to store the 64-bit 'count' 
+ * and 'target' for each of the 16 channels.
+ * - Throughput: The system must "visit" and update one channel per clock cycle.
  *
- * 🌟 EXTRA CREDIT: "The Invisible Handover"
- * Ensure the output pins do not flicker. Implement a 1-bit output register bank 
- * (demux) that "holds" the PWM state for each LED while the shared engine 
- * is busy calculating the other 15 channels.
+ * 🌟 EXTRA CREDIT: "Zero-Latency Handover"
+ * Ensure that when the TDM engine updates channel N, the output registers 
+ * for channels 0-15 maintain their current state without glitches or 
+ * "sampling drops."
  * -----------------------------------------------------------------------------
  */
