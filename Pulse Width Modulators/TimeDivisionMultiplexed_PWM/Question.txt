@@ -1,0 +1,30 @@
+/*
+ * Module: tdm_fibonacci_pwm
+ * -----------------------------------------------------------------------------
+ * THE INTERVIEW CHALLENGE: The Massively Scalable "Alive" LED Array
+ * -----------------------------------------------------------------------------
+ * Scenario:
+ * Your IoT chip has been upgraded to a smart-hub that drives 16 independent 
+ * status LEDs. Each LED must maintain its own unique Fibonacci "breathing" 
+ * sequence, making the entire panel look like a living organism.
+ *
+ * Technical Specifications:
+ * 1. Multi-Channel: Drive 16 independent LED outputs (pwm_bus[15:0]).
+ * 2. Independence: Each LED tracks its own N-value and Fibonacci progression.
+ * 3. Scaling: The architecture must be "O(1) Logic"—increasing the number 
+ * of LEDs should not increase the number of adders or comparators.
+ *
+ * Hardware Constraints (Senior Architect Review):
+ * - Resource Sharing: You are forbidden from instantiating 16 separate modules. 
+ * Use Time Division Multiplexing (TDM) with a single "Shared Engine."
+ * - Context Switching: Implement a "Context RAM" to store {state, count, fib_curr, 
+ * fib_prev} for each LED index.
+ * - Throughput: The system must cycle through all 16 LEDs in a round-robin 
+ * scheduler at 1GHz, updating one LED "context" per clock cycle.
+ *
+ * 🌟 EXTRA CREDIT: "The Invisible Handover"
+ * Ensure the output pins do not flicker. Implement a 1-bit output register bank 
+ * (demux) that "holds" the PWM state for each LED while the shared engine 
+ * is busy calculating the other 15 channels.
+ * -----------------------------------------------------------------------------
+ */
